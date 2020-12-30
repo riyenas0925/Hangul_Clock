@@ -1,5 +1,6 @@
-// 한,두,세,네,다섯,여섯,일곱,여덞,아홉,열,열한,열두(시)
-const byte hour[12][6] = {
+// 영,한,두,세,네,다섯,여섯,일곱,여덞,아홉,열,열한,열두(시)
+const byte hour[13][6] = {
+  {B100000, B000000, B000000, B000000, B000000, B000000},
   {B100000, B000000, B000001, B000000, B000000, B000000},
   {B010000, B000000, B000001, B000000, B000000, B000000},
   {B001000, B000000, B000001, B000000, B000000, B000000},
@@ -40,15 +41,26 @@ const byte minuteOnes[10][6] = {
 
 void setup() {
   Serial.begin(9600);
-
-  for(int i = 0; i < 6; i++) {
-    binaryPrint(hour[1][i] | minuteTens[1][i] | minuteOnes[1][i]);
-  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  for(int i = 0; i < 12; i++) {
+    for(int j = 0; j < 60; j++) {
+      drawClock(i, j);
+      delay(1000);
+    }
+  }
+}
 
+void drawClock(int h, int m) {
+  byte b[6] = { 0, };
+  
+  for(int i = 0; i < 6; i++) {
+    b[i] = hour[h][i] | minuteTens[m / 10][i] | minuteOnes[m % 10][i];
+    binaryPrint(b[i]);
+  }
+
+  Serial.println("------");
 }
 
 void binaryPrint(byte b) {
