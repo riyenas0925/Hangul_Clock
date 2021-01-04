@@ -39,15 +39,24 @@ const byte minuteOnes[10][6] = {
   {B000000, B000000, B000000, B000000, B000000, B000011}
 };
 
+int rows[] = {2,3,4,5,6,7};
+int cols[] = {8,9,10,14,15,16};
+
+unsigned long startTime = 0;
+
 void setup() {
   Serial.begin(9600);
+
+  for (int i = 0; i < 6; i++) {
+    pinMode(cols[i], OUTPUT);
+    pinMode(rows[i], OUTPUT);
+  }
 }
 
 void loop() {
-  for(int i = 0; i < 12; i++) {
+  for(int i = 1; i < 12; i++) {
     for(int j = 0; j < 60; j++) {
       drawClock(i, j);
-      delay(1000);
     }
   }
 }
@@ -57,15 +66,23 @@ void drawClock(int h, int m) {
   
   for(int i = 0; i < 6; i++) {
     b[i] = hour[h][i] | minuteTens[m / 10][i] | minuteOnes[m % 10][i];
-    binaryPrint(b[i]);
   }
-
-  Serial.println("------");
+  
+  setOnOff(b);
 }
 
-void binaryPrint(byte b) {
-  for(int i = 5; i >= 0; i--) {
-    Serial.print((b >> i) & 0X01);
+void setOnOff(byte b[]){
+  while(millis() - startTime < 1000) {
+    for(int i = 0; i < 6; i++) {
+      for(int j = 0; j < 6; j++) {
+        bool a = b[i] >> 5 - j & 0x01 ? LOW : HIGH;
+        digitalWrite(cols[j], a);
+      }
+      digitalWrite(rows[i], HIGH);
+      delay(1);
+      digitalWrite(rows[i], LOW);
+    }
   }
-  Serial.println();
+
+  startTime = millis();
 }
