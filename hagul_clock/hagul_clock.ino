@@ -39,14 +39,15 @@ const byte minuteOnes[10][6] = {
   {B000000, B000000, B000000, B000000, B000000, B000011}
 };
 
+// 도트매트릭스 출력 버퍼
+byte pattern[6] = { 0, };
+
 int rows[] = {2,3,4,5,6,7};
 int cols[] = {8,9,10,14,15,16};
 
 unsigned long startTime = 0;
 
 void setup() {
-  Serial.begin(9600);
-
   for (int i = 0; i < 6; i++) {
     pinMode(cols[i], OUTPUT);
     pinMode(rows[i], OUTPUT);
@@ -57,25 +58,22 @@ void loop() {
   for(int i = 1; i < 12; i++) {
     for(int j = 0; j < 60; j++) {
       drawClock(i, j);
+      display();
     }
   }
 }
 
 void drawClock(int h, int m) {
-  byte b[6] = { 0, };
-  
   for(int i = 0; i < 6; i++) {
-    b[i] = hour[h][i] | minuteTens[m / 10][i] | minuteOnes[m % 10][i];
+    pattern[i] = hour[h][i] | minuteTens[m / 10][i] | minuteOnes[m % 10][i];
   }
-  
-  setOnOff(b);
 }
 
-void setOnOff(byte b[]){
+void display(){
   while(millis() - startTime < 1000) {
     for(int i = 0; i < 6; i++) {
       for(int j = 0; j < 6; j++) {
-        bool a = b[i] >> 5 - j & 0x01 ? LOW : HIGH;
+        bool a = pattern[i] >> 5 - j & 0x01 ? LOW : HIGH;
         digitalWrite(cols[j], a);
       }
       digitalWrite(rows[i], HIGH);
